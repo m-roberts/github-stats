@@ -81,12 +81,14 @@ class Queries(object):
                     print(f"A path returned 202. Retrying...")
                     await asyncio.sleep(2)
                     continue
+                if r.status == 204:
+                    return dict()
 
                 result = await r.json()
                 if result is not None:
                     return result
-            except:
-                print("aiohttp failed for rest query")
+            except Exception as exc:
+                print(f"aiohttp failed for REST query ({type(exc).__name__}); using fallback")
                 # Fall back on non-async requests
                 async with self.semaphore:
                     r = requests.get(f"https://api.github.com/{path}",
@@ -96,8 +98,13 @@ class Queries(object):
                         print(f"A path returned 202. Retrying...")
                         await asyncio.sleep(2)
                         continue
+                    elif r.status_code == 204:
+                        return dict()
                     elif r.status_code == 200:
                         return r.json()
+                    else:
+                        print(f"REST fallback returned HTTP {r.status_code}; data may be incomplete")
+                        return dict()
         # print(f"There were too many 202s. Data for {path} will be incomplete.")
         print("There were too many 202s. Data for this repository will be incomplete.")
         return dict()
