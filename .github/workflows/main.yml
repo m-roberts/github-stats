@@ -23,12 +23,9 @@ jobs:
     # Checks-out repository under $GITHUB_WORKSPACE, so the job can access it
     - uses: actions/checkout@v6
 
-    # Use a supported Python version available on the current runner image
-    - name: Set up Python 3.12
+    # Use the Python version provided by the runner
+    - name: Set up Python
       uses: actions/setup-python@v6
-      with:
-        python-version: '3.12'
-        architecture: 'x64'
 
     # Cache dependencies. From:
     # https://github.com/actions/cache/blob/master/examples.md#python---pip
